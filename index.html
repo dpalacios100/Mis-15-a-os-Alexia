@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>15 años Alexia</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;600&display=swap');
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    background-color: #f4c2c2; /* rosa palo */
+    font-family: 'Poppins', sans-serif;
+    color: #330e0e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 10px;
+  }
+  header {
+    font-family: 'Great Vibes', cursive;
+    font-size: 3.8rem;
+    font-weight: 600;
+    color: #7a2a2a;
+    margin: 15px 0 10px;
+    text-shadow: 1px 1px 5px #f9dcdc;
+    text-align: center;
+  }
+  main {
+    width: 100%;
+    max-width: 370px;
+    background: rgba(255,255,255,0.95);
+    border-radius: 18px;
+    box-shadow: 0 8px 25px rgba(122,42,42,0.25);
+    padding: 15px 15px 25px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 10px;
+    width: 100%;
+  }
+  label {
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: #5c1b1b;
+  }
+  input[type="file"] {
+    font-size: 1rem;
+    cursor: pointer;
+    color: #722222;
+  }
+  button {
+    background-color: #d35d5d;
+    border: none;
+    padding: 14px 0;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 6px 14px #9e4141;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #a94343;
+  }
+  /* Galería cuadrícula con fotos grandes */
+  .gallery {
+    margin-top: 20px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px 15px;
+    align-items: start;
+  }
+  .gallery-item {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 5px 12px rgba(122, 42, 42, 0.3);
+    background: #fff0f0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 180px; /* fijo para uniformidad y recorte */
+  }
+  /* Imágenes y videos cubren el contenedor recortando si es necesario */
+  .gallery-item img,
+  .gallery-item video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 16px 16px 0 0;
+    display: block;
+  }
+  .gallery-item video {
+    max-height: none; /* ya con height 100% */
+  }
+  .remove-btn {
+    background-color: #b13a3a;
+    border: none;
+    width: 100%;
+    padding: 8px 0;
+    color: #fff;
+    font-weight: 600;
+    font-size: 1rem;
+    border-radius: 0 0 16px 16px;
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+    user-select: none;
+  }
+  .remove-btn:hover {
+    background-color: #7a2a2a;
+  }
+  .footer {
+    margin-top: 12px;
+    font-size: 0.85rem;
+    color: #582b2b;
+    font-style: italic;
+    text-align: center;
+  }
+  @media (max-width: 400px) {
+    main {
+      max-width: 100%;
+      padding: 12px 12px 20px;
+    }
+    header {
+      font-size: 3rem;
+    }
+    .gallery {
+      grid-template-columns: repeat(auto-fit,minmax(120px,1fr));
+      gap: 12px;
+    }
+  }
+</style>
+</head>
+<body>
+<header>15 años Alexia</header>
+<main>
+  <form id="uploadForm">
+    <label for="mediaInput">Sube tus fotos o videos</label>
+    <input id="mediaInput" type="file" accept="image/*,video/*" multiple />
+    <button type="submit">Agregar a la galería</button>
+  </form>
+  <section class="gallery" id="gallery" aria-live="polite" aria-label="Galería de fotos y videos"></section>
+</main>
+<div class="footer">¡Celebra con nosotros este hermoso día!</div>
+
+<script>
+  const gallery = document.getElementById('gallery');
+  const form = document.getElementById('uploadForm');
+  const input = document.getElementById('mediaInput');
+  const MAX_ITEMS = 25;
+
+  function loadGallery() {
+    const stored = localStorage.getItem('alexiaGallery');
+    if (stored) {
+      const items = JSON.parse(stored);
+      gallery.innerHTML = '';
+      items.forEach((item, index) => {
+        addMediaToGallery(item, index);
+      });
+      return items;
+    }
+    return [];
+  }
+
+  function addMediaToGallery(item, index) {
+    const div = document.createElement('div');
+    div.classList.add('gallery-item');
+    div.setAttribute('data-index', index);
+
+    if(item.type.startsWith('image')) {
+      const img = document.createElement('img');
+      img.src = item.data;
+      img.alt = 'Foto subida a 15 años Alexia';
+      div.appendChild(img);
+    } else if(item.type.startsWith('video')) {
+      const video = document.createElement('video');
+      video.src = item.data;
+      video.controls = true;
+      video.setAttribute('aria-label', 'Video subido a 15 años Alexia');
+      video.preload = 'metadata';
+      div.appendChild(video);
+    }
+
+    const removeBtn = document.createElement('button');
+    removeBtn.classList.add('remove-btn');
+    removeBtn.setAttribute('type', 'button');
+    removeBtn.setAttribute('aria-label', 'Eliminar foto o video');
+    removeBtn.textContent = 'Eliminar';
+    removeBtn.addEventListener('click', () => {
+      removeMedia(parseInt(div.getAttribute('data-index')));
+    });
+
+    div.appendChild(removeBtn);
+    gallery.appendChild(div);
+  }
+
+  function saveGallery(items) {
+    localStorage.setItem('alexiaGallery', JSON.stringify(items));
+  }
+
+  function removeMedia(index) {
+    const items = loadGallery();
+    if (index >= 0 && index < items.length) {
+      items.splice(index, 1);
+      saveGallery(items);
+      refreshGallery();
+    }
+  }
+
+  function refreshGallery() {
+    const items = loadGallery();
+    gallery.innerHTML = '';
+    items.forEach((item, idx) => {
+      addMediaToGallery(item, idx);
+    });
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const files = input.files;
+    if (!files.length) {
+      alert('Por favor selecciona fotos o videos para subir.');
+      return;
+    }
+
+    const currentItems = loadGallery();
+    if (currentItems.length >= MAX_ITEMS) {
+      // No se muestra mensaje ni se hace nada
+      form.reset();
+      return;
+    }
+    // Recortar los archivos si exceden el máximo permitido
+    let allowedCount = MAX_ITEMS - currentItems.length;
+    let filesToAdd = Array.from(files).slice(0, allowedCount);
+
+    const readerPromises = [];
+    for (let i = 0; i < filesToAdd.length; i++) {
+      readerPromises.push(new Promise((resolve, reject) => {
+        const file = filesToAdd[i];
+        const reader = new FileReader();
+        reader.onload = () => {
+          resolve({type: file.type, data: reader.result});
+        };
+        reader.onerror = () => {
+          reject('Error al leer el archivo');
+        };
+        reader.readAsDataURL(file);
+      }));
+    }
+
+    Promise.all(readerPromises).then(newItems => {
+      const updatedItems = currentItems.concat(newItems);
+      saveGallery(updatedItems);
+      refreshGallery();
+      form.reset();
+    }).catch(err => {
+      alert("Ocurrió un error al procesar los archivos");
+      console.error(err);
+    });
+  });
+
+  loadGallery();
+</script>
+</body>
+</html>
